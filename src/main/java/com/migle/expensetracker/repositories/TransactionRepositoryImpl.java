@@ -81,7 +81,11 @@ public class TransactionRepositoryImpl implements TransactionRepository {
 
     @Override
     public void removeById(Integer userId, Integer categoryId, Integer transactionId) throws EtResourceNotFoundException {
-
+        int count = jdbcTemplate.update(SQL_DELETE, userId, categoryId, transactionId);
+        if (count == 0) {
+            // nothing was deleted, no transaction record found.
+            throw new EtResourceNotFoundException("Transaction not found");
+        }
     }
 
     private RowMapper<Transaction> transactionRowMapper = ((rs, rowNum) -> {
