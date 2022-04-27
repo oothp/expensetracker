@@ -5,6 +5,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @SpringBootApplication
 public class ExpenseTrackerApiApplication {
@@ -21,6 +24,21 @@ public class ExpenseTrackerApiApplication {
         // urls other than login and register need to be protected
 
         registrationBean.addUrlPatterns("/api/categories/*");
+        return registrationBean;
+    }
+
+    // allow cross-origin requests
+    @Bean
+    public FilterRegistrationBean<CorsFilter> corsFilter() {
+        FilterRegistrationBean<CorsFilter> registrationBean = new FilterRegistrationBean<>();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.addAllowedOrigin("http://localhost:5500");
+        configuration.addAllowedOrigin("*"); // allow all
+        configuration.addAllowedHeader("*");
+        source.registerCorsConfiguration("/**", configuration);
+        registrationBean.setFilter(new CorsFilter(source));
+        registrationBean.setOrder(0); // execute first
         return registrationBean;
     }
 }
