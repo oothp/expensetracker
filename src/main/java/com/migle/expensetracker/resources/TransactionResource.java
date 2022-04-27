@@ -29,4 +29,14 @@ public class TransactionResource {
         Transaction transaction = transactionService.addTransaction(userId, categoryId, amount, note, transactionDate);
         return new ResponseEntity<>(transaction, HttpStatus.OK);
     }
+
+    @GetMapping("{transactionId")
+    public ResponseEntity<Transaction> getTransactionById(HttpServletRequest request,
+                                                          @PathVariable("categoryId") Integer categoryId,
+                                                          @PathVariable("transactionId") Integer transactionId) {
+
+        int userId = (Integer) request.getAttribute("userId");
+        Transaction transaction = transactionService.fetchTransactionById(userId, categoryId, transactionId);
+        return new ResponseEntity<>(transaction, HttpStatus.OK);
+    }
 }
