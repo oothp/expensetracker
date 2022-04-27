@@ -30,7 +30,7 @@ public class TransactionResource {
         return new ResponseEntity<>(transaction, HttpStatus.OK);
     }
 
-    @GetMapping("{transactionId")
+    @GetMapping("{transactionId}")
     public ResponseEntity<Transaction> getTransactionById(HttpServletRequest request,
                                                           @PathVariable("categoryId") Integer categoryId,
                                                           @PathVariable("transactionId") Integer transactionId) {
