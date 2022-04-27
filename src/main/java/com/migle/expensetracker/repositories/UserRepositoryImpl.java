@@ -2,6 +2,7 @@ package com.migle.expensetracker.repositories;
 
 import com.migle.expensetracker.domain.User;
 import com.migle.expensetracker.exceptions.EtAuthException;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,6 +31,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Integer create(String firstName, String lastName, String email, String password) throws EtAuthException {
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(10));
         try {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
@@ -37,7 +39,7 @@ public class UserRepositoryImpl implements UserRepository {
                 ps.setString(1, firstName);
                 ps.setString(2, lastName);
                 ps.setString(3, email);
-                ps.setString(4, password);
+                ps.setString(4, hashedPassword);
                 return ps;
             }, keyHolder);
             return (Integer) keyHolder.getKeys().get("USER_ID");
@@ -52,7 +54,8 @@ public class UserRepositoryImpl implements UserRepository {
             User user = jdbcTemplate.queryForObject(SQL_FIND_BY_EMAIL, userRowMapper, email);
             // if we get here, the email is correct and the user exists
             // now compare the password provided with the users passwd.
-            if (!password.equals(user.getPassword())) throw new EtAuthException("Invalid password");
+            if (!BCrypt.checkpw(password, user.getPassword()));
+//            if (!password.equals(user.getPassword())) throw new EtAuthException("Invalid password");
             return user;
         } catch (EmptyResultDataAccessException e) {
             throw new EtAuthException("Invalid email or password");
