@@ -40,5 +40,11 @@ public class UserResource {
         // email + passwd come in payload body
         String email = (String) userMap.get("email");
         String password = (String) userMap.get("password");
+
+        User user = userService.validateUser(email, password);
+        Map<String, String> map = new HashMap<>();
+        map.put("message", "Logged in successfully");
+
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 }

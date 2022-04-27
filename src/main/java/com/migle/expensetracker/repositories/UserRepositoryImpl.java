@@ -3,6 +3,7 @@ package com.migle.expensetracker.repositories;
 import com.migle.expensetracker.domain.User;
 import com.migle.expensetracker.exceptions.EtAuthException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.Objects;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
@@ -40,8 +40,7 @@ public class UserRepositoryImpl implements UserRepository {
                 ps.setString(4, password);
                 return ps;
             }, keyHolder);
-            int sss = (Integer) keyHolder.getKeys().get("USER_ID");
-            return sss;
+            return (Integer) keyHolder.getKeys().get("USER_ID");
         } catch (Exception e) {
             throw new EtAuthException("Invalid details. Failed to create account");
         }
@@ -49,7 +48,15 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findByEmailAndPassword(String email, String password) throws EtAuthException {
-        return null;
+        try {
+            User user = jdbcTemplate.queryForObject(SQL_FIND_BY_EMAIL, userRowMapper, email);
+            // if we get here, the email is correct and the user exists
+            // now compare the password provided with the users passwd.
+            if (!password.equals(user.getPassword())) throw new EtAuthException("Invalid password");
+            return user;
+        } catch (EmptyResultDataAccessException e) {
+            throw new EtAuthException("Invalid email or password");
+        }
     }
 
     @Override
@@ -64,8 +71,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     private RowMapper<User> userRowMapper = ((rs, rowNum) ->
             new User(rs.getInt("USER_ID"),
-            rs.getString("FIRST_NAME"),
-            rs.getString("LAST_NAME"),
-            rs.getString("EMAIL"),
-            rs.getString("PASSWORD")));
+                    rs.getString("FIRST_NAME"),
+                    rs.getString("LAST_NAME"),
+                    rs.getString("EMAIL"),
+                    rs.getString("PASSWORD")));
 }
