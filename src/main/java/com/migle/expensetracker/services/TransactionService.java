@@ -17,6 +17,7 @@ public interface TransactionService {
     Transaction addTransaction(Integer userId,
                                Integer categoryId,
                                Double amount,
+                               String note,
                                Long transactionDate) throws EtBadRequestException;
 
     void updateTransaction(Integer userId,
