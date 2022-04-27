@@ -37,7 +37,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
 
     @Override
     public List<Transaction> findAll(Integer userId, Integer categoryId) {
-        return null;
+        return jdbcTemplate.query(SQL_FIND_ALL, transactionRowMapper, userId, categoryId);
     }
 
     @Override
